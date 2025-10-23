@@ -5,10 +5,10 @@ services:
   gitlab:
     image: gitlab/gitlab-ce
     container_name: gitlab_diwa_isus
-    hostname: 'localhost'
+    hostname: '192.168.1.44'
     environment:
       GITLAB_OMNIBUS_CONFIG: |
-        external_url 'http://localhost:8080'
+        external_url 'http://192.168.1.44:8080'
         gitlab_rails['gitlab_shell_ssh_port'] = 2222
         gitlab_rails['initial_root_password'] = "wearesame"
         nginx['listen_port'] = 80
