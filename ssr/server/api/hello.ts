@@ -1,3 +1,3 @@
 export default defineEventHandler(() => {
-  return { message: "Hello from Nuxt API 👋" }
+  return { message: "iamserver of wearesame team by 0km" }
 })
