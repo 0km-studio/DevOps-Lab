@@ -5,44 +5,58 @@ stages:
   - build
   - deploy
 
+# -----------------------------
+# Cache node_modules เพื่อให้ npm install เร็วขึ้น
 cache:
-  key: "$CI_COMMIT_REF_SLUG"
+  key: "$CI_COMMIT_REF_NAME"
   paths:
     - node_modules/
 
-variables:
-  DEPLOY_CONTAINER: "nginx_diwa"
-  DEPLOY_PATH: "/var/www/html"
-
+# -----------------------------
+# Install dependencies
 install_dependencies:
   stage: install
   script:
-    - echo "Installing dependencies..."
     - npm ci
+    - npx nuxi prepare
+  cache:
+    key: "$CI_COMMIT_REF_NAME"
+    paths:
+      - node_modules/
   tags:
-    - nuxt
+    - eiei
 
+# -----------------------------
+# Build Nuxt
 build:
   stage: build
   script:
-    - echo "Building Nuxt project..."
     - npm run build
   artifacts:
     paths:
       - .output
   tags:
-    - nuxt
+    - eiei
 
+# -----------------------------
+# Deploy (branch main)
 deploy:
   stage: deploy
+  image: docker:24
+  variables:
+    DOCKER_HOST: unix:///var/run/docker.sock
   script:
-    - echo "Deploying to Nginx container..."
-    # Copy build artifacts เข้า container nginx
-    - docker cp .output/. "$DEPLOY_CONTAINER:$DEPLOY_PATH"
-    # Reload nginx เพื่อให้หน้าเว็บใหม่แสดง
-    - docker exec "$DEPLOY_CONTAINER" nginx -s reload || true
-    - echo "✅ Deploy complete!"
+    - echo "Deploying Nuxt SSR/Nitro"
+    - rm -rf /var/www/html/*
+    - cp -r .output/public/* /var/www/html/
+    - cp -r .output/server /var/www/html/
+    - echo "Deployed to /var/www/html/"
+    - echo "Restarting services..."
+    - docker restart nuxt_diwa
+    - sleep 3
+    - docker restart nginx_diwa
+    - echo "✅ Deployment complete!"
   only:
     - main
   tags:
-    - nuxt
+    - eiei
