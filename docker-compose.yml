@@ -1,14 +1,12 @@
-# linux only
-
 version: "3.9"
 services:
   gitlab:
     image: gitlab/gitlab-ce
     container_name: gitlab_diwa_isus
-    hostname: '192.168.1.44'
+    hostname: '100.68.32.90'
     environment:
       GITLAB_OMNIBUS_CONFIG: |
-        external_url 'http://192.168.1.44:8080'
+        external_url 'http://100.68.32.90:8080'
         gitlab_rails['gitlab_shell_ssh_port'] = 2222
         gitlab_rails['initial_root_password'] = "wearesame"
         nginx['listen_port'] = 80
@@ -21,13 +19,22 @@ services:
       - ./gitlab/logs:/var/log/gitlab
       - ./gitlab/data:/var/opt/gitlab
     restart: always
+    networks:
+      - diwa_net
+
   gitlab-runner:
     image: gitlab/gitlab-runner
     container_name: gitlab-runner_diwa_isus
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./runner/config:/etc/gitlab-runner
+      - ./www:/var/www/html
+      - /home/ntdotjsx/DevOps-Lab:/home/ntdotjsx/DevOps-Lab
+    privileged: true
     restart: always
+    networks:
+      - diwa_net
+
   nginx:
     image: nginx:latest
     container_name: nginx_diwa
@@ -39,6 +46,10 @@ services:
     depends_on:
       - gitlab
       - mariadb
+      - nuxt
+    networks:
+      - diwa_net
+
   mariadb:
     image: mariadb:latest
     container_name: mariadb-diwa_isus
@@ -52,6 +63,26 @@ services:
       - "3306:3306"
     volumes:
       - db_data:/var/lib/mysql
+    networks:
+      - diwa_net
+
+  nuxt:
+    image: node:20
+    container_name: nuxt_diwa
+    working_dir: /var/www/html
+    volumes:
+      - ./www:/var/www/html
+    command: ["node", "server/index.mjs"]
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mariadb
+    networks:
+      - diwa_net
 
 volumes:
   db_data:
+
+networks:
+  diwa_net:
+    driver: bridge
