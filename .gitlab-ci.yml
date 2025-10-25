@@ -1,0 +1,62 @@
+image: node:20
+
+stages:
+  - install
+  - build
+  - deploy
+
+# -----------------------------
+# Cache node_modules เพื่อให้ npm install เร็วขึ้น
+cache:
+  key: "$CI_COMMIT_REF_NAME"
+  paths:
+    - node_modules/
+
+# -----------------------------
+# Install dependencies
+install_dependencies:
+  stage: install
+  script:
+    - npm ci
+    - npx nuxi prepare
+  cache:
+    key: "$CI_COMMIT_REF_NAME"
+    paths:
+      - node_modules/
+  tags:
+    - eiei
+
+# -----------------------------
+# Build Nuxt
+build:
+  stage: build
+  script:
+    - npm run build
+  artifacts:
+    paths:
+      - .output
+  tags:
+    - eiei
+
+# -----------------------------
+# Deploy (branch main)
+deploy:
+  stage: deploy
+  image: docker:24
+  variables:
+    DOCKER_HOST: unix:///var/run/docker.sock
+  script:
+    - echo "Deploying Nuxt SSR/Nitro"
+    - rm -rf /var/www/html/*
+    - cp -r .output/public/* /var/www/html/
+    - cp -r .output/server /var/www/html/
+    - echo "Deployed to /var/www/html/"
+    - echo "Restarting services..."
+    - docker restart nuxt_diwa
+    - sleep 3
+    - docker restart nginx_diwa
+    - echo "✅ Deployment complete!"
+  only:
+    - main
+  tags:
+    - eiei
