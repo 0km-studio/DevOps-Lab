@@ -1,0 +1,48 @@
+image: node:20
+
+stages:
+  - install
+  - build
+  - deploy
+
+cache:
+  key: "$CI_COMMIT_REF_SLUG"
+  paths:
+    - node_modules/
+
+variables:
+  DEPLOY_CONTAINER: "nginx_diwa"
+  DEPLOY_PATH: "/var/www/html"
+
+install_dependencies:
+  stage: install
+  script:
+    - echo "Installing dependencies..."
+    - npm ci
+  tags:
+    - nuxt
+
+build:
+  stage: build
+  script:
+    - echo "Building Nuxt project..."
+    - npm run build
+  artifacts:
+    paths:
+      - .output
+  tags:
+    - nuxt
+
+deploy:
+  stage: deploy
+  script:
+    - echo "Deploying to Nginx container..."
+    # Copy build artifacts เข้า container nginx
+    - docker cp .output/. "$DEPLOY_CONTAINER:$DEPLOY_PATH"
+    # Reload nginx เพื่อให้หน้าเว็บใหม่แสดง
+    - docker exec "$DEPLOY_CONTAINER" nginx -s reload || true
+    - echo "✅ Deploy complete!"
+  only:
+    - main
+  tags:
+    - nuxt
