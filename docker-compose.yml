@@ -1,5 +1,3 @@
-# linux only
-
 version: "3.9"
 services:
   gitlab:
@@ -23,6 +21,7 @@ services:
     restart: always
     networks:
       - diwa_net
+
   gitlab-runner:
     image: gitlab/gitlab-runner
     container_name: gitlab-runner_diwa_isus
@@ -30,9 +29,11 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./runner/config:/etc/gitlab-runner
       - ./www:/var/www/html
+    privileged: true
     restart: always
     networks:
       - diwa_net
+
   nginx:
     image: nginx:latest
     container_name: nginx_diwa
@@ -44,8 +45,10 @@ services:
     depends_on:
       - gitlab
       - mariadb
+      - nuxt
     networks:
       - diwa_net
+
   mariadb:
     image: mariadb:latest
     container_name: mariadb-diwa_isus
@@ -59,6 +62,18 @@ services:
       - "3306:3306"
     volumes:
       - db_data:/var/lib/mysql
+    networks:
+      - diwa_net
+
+  nuxt:
+    image: node:20
+    container_name: nuxt_diwa
+    working_dir: /var/www/html
+    volumes:
+      - ./www:/var/www/html
+    command: ["node", ".output/server/index.mjs"]
+    depends_on:
+      - mariadb
     networks:
       - diwa_net
 
