@@ -71,7 +71,7 @@ services:
     working_dir: /var/www/html
     volumes:
       - ./www:/var/www/html
-    command: ["node", ".output/server/index.mjs"]
+    command: ["npm", "start"]
     depends_on:
       - mariadb
     networks:
