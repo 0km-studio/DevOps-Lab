@@ -29,6 +29,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./runner/config:/etc/gitlab-runner
       - ./www:/var/www/html
+      - /home/ntdotjsx/DevOps-Lab:/home/ntdotjsx/DevOps-Lab
     privileged: true
     restart: always
     networks:
@@ -72,6 +73,8 @@ services:
     volumes:
       - ./www:/var/www/html
     command: ["node", "server/index.mjs"]
+    ports:
+      - "3000:3000"
     depends_on:
       - mariadb
     networks:
