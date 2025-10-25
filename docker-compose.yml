@@ -45,24 +45,23 @@ services:
       - ./www:/var/www/html
     depends_on:
       - gitlab
-      - mariadb
+      - mongo
       - nuxt
     networks:
       - diwa_net
 
-  mariadb:
-    image: mariadb:latest
-    container_name: mariadb-diwa_isus
+  mongo:
+    image: mongo:latest
+    container_name: mongo-diwa
     restart: unless-stopped
     environment:
-      MARIADB_ROOT_PASSWORD: wearesame
-      MARIADB_DATABASE: public
-      MARIADB_USER: ntdotjsx
-      MARIADB_PASSWORD: wearesame
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: wearesame
+      MONGO_INITDB_DATABASE: nuxt_auth
     ports:
-      - "3306:3306"
+      - "27017:27017"
     volumes:
-      - db_data:/var/lib/mysql
+      - mongo_data:/data/db
     networks:
       - diwa_net
 
@@ -76,12 +75,12 @@ services:
     ports:
       - "3000:3000"
     depends_on:
-      - mariadb
+      - mongo
     networks:
       - diwa_net
 
 volumes:
-  db_data:
+  mongo_data:
 
 networks:
   diwa_net:
