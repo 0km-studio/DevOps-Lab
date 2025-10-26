@@ -1,8 +1,8 @@
 <template>
-    <header class="bg-black border-b border-zinc-800">
+    <header class="">
         <div class="px-8 py-2.5 flex justify-between items-center">
             <div>
-                <h1 class="text-xl font-semibold text-white">...</h1>
+                <h1 class="text-xl font-semibold">...</h1>
                 <p class="text-sm text-zinc-500 mt-0.5">....</p>
             </div>
 

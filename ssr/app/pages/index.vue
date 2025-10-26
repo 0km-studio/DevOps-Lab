@@ -1,10 +1,11 @@
 <script setup lang="ts">
-const { count, increment } = useCounter()
+definePageMeta({
+    layout: 'landing',
+});
 </script>
 
 <template>
-    <div>
-        <p>Count: {{ count }}</p>
-        <button @click="increment">ทดสอบ</button>
-    </div>
+    <h1 class="text-2xl">ระบบเหี้ยไรผมก็ไม่ทราบได้เช่นกันครับ</h1>
+    <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Sint tenetur pariatur inventore delectus cumque id
+        explicabo aliquam similique aut laudantium, minima libero fugit harum odit ullam eos sunt expedita odio.</p>
 </template>

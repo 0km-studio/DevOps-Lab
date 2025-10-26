@@ -4,16 +4,16 @@ import Navigation from '~/components/Navigation.vue';
 import Footer from '~/components/Footer.vue';
 </script>
 <template>
-  <div class="flex h-screen overflow-hidden bg-zinc-950">
+  <div class="flex h-screen overflow-hidden">
     <!-- Sidebar -->
-    <aside class="w-64 bg-black border-r border-zinc-800 flex flex-col">
+    <aside class="w-64 flex flex-col">
       <!-- Logo -->
       <div class="px-6 py-5">
         <div class="flex items-center space-x-2">
-          <div class="w-8 h-8 bg-white rounded flex items-center justify-center">
+          <div class="w-8 h-8 rounded flex items-center justify-center">
             <span class="text-sm font-bold text-black">WR</span>
           </div>
-          <span class="text-base font-semibold text-white tracking-tight">WE ARE SAME</span>
+          <span class="text-base font-semibold tracking-tight">WE ARE SAME</span>
         </div>
       </div>
 
@@ -21,10 +21,10 @@ import Footer from '~/components/Footer.vue';
       <Navigation />
 
       <!-- User -->
-      <div class="px-3 py-4 border-t border-zinc-800">
+      <div class="px-3 py-4">
         <div
-          class="flex items-center space-x-3 px-3 py-2.5 rounded-lg hover:bg-zinc-900 cursor-pointer transition-colors">
-          <div class="w-8 h-8 rounded-full bg-zinc-700 flex items-center justify-center text-sm font-medium text-white">
+          class="flex items-center space-x-3 px-3 py-2.5 rounded-lg cursor-pointer transition-colors">
+          <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium text-white">
             AD
           </div>
           <div class="flex-1 min-w-0">
@@ -41,7 +41,7 @@ import Footer from '~/components/Footer.vue';
       <Header />
 
       <!-- Content -->
-      <main class="flex-1 overflow-auto bg-zinc-950">
+      <main class="flex-1 overflow-auto">
         <div class="p-2">
           <!-- Main Content -->
           <div class="p-8">
