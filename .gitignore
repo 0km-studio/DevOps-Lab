@@ -1,0 +1,5 @@
+gitlab-config
+gitlab-data
+gitlab-logs
+gitlab-runner
+node_modules
