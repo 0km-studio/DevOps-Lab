@@ -4,13 +4,14 @@ services:
   gitlab:
     image: gitlab/gitlab-ce
     container_name: gitlab
+    restart: always
     environment:
       GITLAB_OMNIBUS_CONFIG: |
         external_url "http://192.168.1.39"
         gitlab_rails['initial_root_password'] = "wearesame"
         gitlab_rails['registry_enabled'] = true
         registry_external_url "http://192.168.1.39:5001"
-        nginx["listen_port"] = 80
+        nginx['listen_port'] = 80
         nginx["listen_https"] = false 
         nginx["https"] = false
     ports:
@@ -22,32 +23,17 @@ services:
       - ./gitlab-data:/var/opt/gitlab
     networks:
       - nn
-  
+
   gitlab-runner:
     image: gitlab/gitlab-runner
     container_name: gitlab-runner
+    restart: always
     privileged: true
     volumes:
       - ./gitlab-runner:/etc/gitlab-runner
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - nn
-
-  mongo:
-    image: mongo
-    container_name: mongo
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: wearesame
-      MONGO_INITDB_ROOT_PASSWORD: eiei
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongodata:/data/db
-    networks:
-        - nn
-
-volumes:
-  mongodata:
 
 networks:
   nn:
