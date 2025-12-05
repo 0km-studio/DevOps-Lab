@@ -1,0 +1,27 @@
+services:
+  nuxt:
+    image: ${CI_REGISTRY_IMAGE}:prod
+    restart: always
+    environment:
+      NODE_ENV: production
+      MONGO_URL: mongodb://mongo:27017/mydb_prod
+    depends_on:
+      - mongo
+
+  mongo:
+    image: mongo:6
+    restart: always
+    volumes:
+      - mongo_prod:/data/db
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - nuxt
+
+volumes:
+  mongo_prod:
