@@ -4,22 +4,20 @@ stages:
   - deploy_prod
 
 variables:
-  DOCKER_TLS_CERTDIR: ""
-  REGISTRY_URL: "http://192.168.1.39:5001"
   IMAGE_NAME: "nuxt-app"
 
-# -------------------------------
+# ------------------------------- 
 # BUILD & PUSH IMAGE
 # -------------------------------
 build_image:
-  stage: build
+  stage: build  
   script:
-    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY" --password-stdin $REGISTRY_URL
+    - echo "$CI_REGISTRY_PASSWORD" | docker login $CI_REGISTRY -u "$CI_REGISTRY_USER" --password-stdin
     - docker build -t $CI_REGISTRY_IMAGE:staging -t $CI_REGISTRY_IMAGE:prod .
     - docker push $CI_REGISTRY_IMAGE:staging
-    - docker push $CI_REGISTRY_IMAGE:prod
+    - docker push $CI_REGISTRY_IMAGE:prod 
   only:
-    - main
+    - main 
 
 # ------------------------------- 
 # DEPLOY TO STAGING

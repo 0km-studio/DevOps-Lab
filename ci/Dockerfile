@@ -1,17 +1,20 @@
 # ---------- STAGE 1: Build ----------
-FROM node:18 AS builder
+FROM node:24 AS builder
 WORKDIR /app
 
+# Install dependencies
 COPY package*.json ./
 RUN npm install
 
+# Copy source code
 COPY . .
+
+# Build Nuxt app
 RUN npm run build
 
 
-# ---------- STAGE 2: Production ----------
-FROM node:18-alpine
-
+# ---------- STAGE 2: Production ---------- 
+FROM node:24 AS production
 WORKDIR /app
 
 # Copy only build output + node_modules
