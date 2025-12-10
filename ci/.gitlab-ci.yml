@@ -14,7 +14,7 @@ test:
 build:
   stage: build
   script:
-    - echo $CI_REGISTRY_PASSWORD | docker login http://192.168.20.250:5000 -u $CI_REGISTRY_USER --password-stdin
+    - echo $CI_REGISTRY_PASSWORD | docker login $CI_REGISTRY -u $CI_REGISTRY_USER --password-stdin
     - docker build -t $IMAGE_NAME .
     - docker push $IMAGE_NAME
 
