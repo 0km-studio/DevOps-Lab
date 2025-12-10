@@ -1,6 +1,13 @@
-# this docker-compose for gitlab vm and test server 🔥
-
 services:
+  registry:
+    image: registry:2
+    container_name: registry
+    restart: always
+    volumes:
+      - ./data:/var/lib/registry
+    ports:
+      - "5000:5000"
+
   gitlab:
     image: gitlab/gitlab-ce
     container_name: gitlab
@@ -9,24 +16,13 @@ services:
       GITLAB_OMNIBUS_CONFIG: |
         external_url "http://192.168.1.39:8080"
         gitlab_rails['initial_root_password'] = "wearesame"
-        gitlab_rails['registry_enabled'] = true
-        registry_external_url "https://192.168.1.39:5001"
-        registry_nginx['ssl_certificate'] = "/etc/gitlab/ssl/registry.crt"
-        registry_nginx['ssl_certificate_key'] = "/etc/gitlab/ssl/registry.key"
-        registry_nginx['listen_port'] = 5001
-        registry_nginx['listen_https'] = true
-
         nginx['listen_port'] = 80
-        nginx['listen_https'] = false
     ports:
-      - "8080:80"
-      - "5001:5001"
+      - "81:80"
     volumes:
       - ./gitlab-config:/etc/gitlab
       - ./gitlab-logs:/var/log/gitlab
       - ./gitlab-data:/var/opt/gitlab
-    networks:
-      - nn
 
   gitlab-runner:
     image: gitlab/gitlab-runner
@@ -36,10 +32,8 @@ services:
     volumes:
       - ./gitlab-runner:/etc/gitlab-runner
       - /var/run/docker.sock:/var/run/docker.sock
-      - ./ca:/etc/docker/certs.d/
-    networks:
-      - nn
 
 networks:
-  nn:
-    driver: bridge
+  default:
+    external:
+      name: wearesame

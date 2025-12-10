@@ -1,0 +1,30 @@
+{
+        cert_issuer internal
+}
+
+dns.ntdotjsx.lab {
+    tls internal
+    encode zstd gzip
+    reverse_proxy http://technitium:5380 {
+        header_up Host technitium.ntdotjsx.lab
+        header_up X-Real-IP {remote_host}
+        header_up X-Forwarded-For {remote_host}
+        header_up X-Forwarded-Proto https
+        header_up X-Forwarded-Ssl on
+    }
+}
+
+gitlab.ntdotjsx.lab {
+    tls internal
+    encode zstd gzip
+
+    header Strict-Transport-Security "max-age=31536000;"
+
+    reverse_proxy http://gitlab:80 {
+        header_up Host gitlab.ntdotjsx.lab
+        header_up X-Real-IP {remote_host}
+        header_up X-Forwarded-For {remote_host}
+        header_up X-Forwarded-Proto https
+        header_up X-Forwarded-Ssl on
+    }
+}
