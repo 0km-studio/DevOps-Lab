@@ -1,0 +1,36 @@
+services:
+  mongo:
+    image: mongo
+    container_name: mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ntdotjsx
+      MONGO_INITDB_ROOT_PASSWORD: ntdotjsx
+    volumes:
+      - mongo_data:/data/db/
+    ports:
+      - "27017:27017"
+
+  nuxt:
+    image: 192.168.20.250:5000/myapp:latest
+    container_name: nuxt-app
+    restart: always
+    environment:
+      MONGO_URI: mongodb://ntdotjsx:ntdotjsx@localhost:27017
+    depends_on:
+      - mongo
+    expose:
+      - "3000"
+
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - nuxt
+
+volumes:
+  mongo_data:

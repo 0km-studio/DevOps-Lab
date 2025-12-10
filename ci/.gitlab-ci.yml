@@ -1,61 +1,39 @@
 stages:
+  - test
   - build
-  - deploy_staging
-  - deploy_prod
+  - deploy
 
 variables:
-  IMAGE_NAME: "nuxt-app"
+  IMAGE_NAME: 192.168.20.250:5000/myapp:latest
 
-# ------------------------------- 
-# BUILD & PUSH IMAGE
-# -------------------------------
-build_image:
-  stage: build  
+test:
+  stage: test
+  script: 
+    - echo "eiei"
+
+build:
+  stage: build
   script:
-    - echo "$CI_REGISTRY_PASSWORD" | docker login $CI_REGISTRY -u "$CI_REGISTRY_USER" --password-stdin
-    - docker build -t $CI_REGISTRY_IMAGE:staging -t $CI_REGISTRY_IMAGE:prod .
-    - docker push $CI_REGISTRY_IMAGE:staging
-    - docker push $CI_REGISTRY_IMAGE:prod 
-  only:
-    - main 
+    - echo $CI_REGISTRY_PASSWORD | docker login http://192.168.20.250:5000 -u $CI_REGISTRY_USER --password-stdin
+    - docker build -t $IMAGE_NAME .
+    - docker push $IMAGE_NAME
 
-# -------------------------------
-# DEPLOY TEMPLATE
-# -------------------------------
-.deploy_template: &deploy_template
-  stage: deploy
-  image: alpine:latest
+deploy: 
+  stage: deploy 
   before_script:
-    - apk add --no-cache sshpass docker-cli
+    - mkdir -p ~/.ssh
+    - echo "$SSH_PRIVATE_KEY" | base64 -d > ~/.ssh/id_rsa
+    - chmod 600 ~/.ssh/id_rsa
+    - ssh-keyscan -H $PROD_HOST >> ~/.ssh/known_hosts
+    
   script:
-    - sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST "
-        docker login -u $REGISTRY_USER -p $REGISTRY_PASSWORD $REGISTRY_URL
-        docker pull $REGISTRY_URL/$IMAGE_NAME:$DEPLOY_TAG
-
-        cd /apps/source_code
-        docker compose -f docker-compose.$DEPLOY_ENV.yml down
-        docker compose -f docker-compose.$DEPLOY_ENV.yml up -d
+    - echo "Deploying ..."
+    - scp -i ~/.ssh/id_rsa -r ./ $PROD_USER@$PROD_HOST:~/project
+    - ssh -i ~/.ssh/id_rsa $PROD_USER@$PROD_HOST "
+        cd ~/project &&
+        docker-compose down -v --rmi all &&
+        docker system prune -af &&
+        docker volume prune -f &&
+        docker-compose pull &&
+        docker-compose up -d --build
       "
-  only:
-    - main
-
-# DEPLOY STAGING
-deploy_staging:
-  <<: *deploy_template
-  variables:
-    SSH_USER: $SSH_USER_STAGING
-    SSH_HOST: $SSH_HOST_STAGING
-    SSH_PASSWORD: $SSH_PASSWORD_STAGING
-    DEPLOY_TAG: staging
-    DEPLOY_ENV: staging
-
-# DEPLOY PRODUCTION
-deploy_prod:
-  <<: *deploy_template
-  variables:
-    SSH_USER: $SSH_USER_PROD
-    SSH_HOST: $SSH_HOST_PROD
-    SSH_PASSWORD: $SSH_PASSWORD_PROD
-    DEPLOY_TAG: prod
-    DEPLOY_ENV: prod
-  when: manual
